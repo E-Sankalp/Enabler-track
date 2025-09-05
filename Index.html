@@ -1,485 +1,882 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vercel Order Portal</title>
-    <!-- Tailwind CSS CDN for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Google Fonts - Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sankalp Field Attendance</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f3f6fc;
+      font-size: 1rem;
+    }
+    .container {
+      max-width: 100%;
+      padding: 1rem;
+    }
+    h4, h5 {
+      color: #000c8f;
+      font-weight: 700;
+    }
+    .form-input, .form-select, .form-textarea {
+      font-size: 1rem;
+      padding: 1rem;
+      min-height: 3rem; /* Enlarge for easier tapping */
+      border-radius: 0.75rem;
+      border: 1px solid #d1d5db;
+      width: 100%; /* Ensure full width */
+    }
+    .btn {
+      font-size: 1rem;
+      padding: 1rem;
+      min-height: 3.5rem; /* Larger touch target */
+      border-radius: 0.75rem;
+    }
+    .card {
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 0 12px rgba(0,0,0,0.05);
+    }
+    label {
+      margin-top: 0.75rem;
+      font-weight: 500;
+      font-size: 0.9rem; /* Slightly smaller for balance */
+      display: block; /* Ensure labels are block elements */
+      margin-bottom: 0.25rem;
+    }
+    .hidden {
+      display: none;
+    }
+    textarea {
+      resize: vertical;
+    }
+    #previewImages img {
+      height: 100px;
+      border-radius: 8px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.1);
+      margin-right: 8px;
+      margin-top: 8px;
+    }
+
+    /* Custom styles for the spinner modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1050;
+    }
+    .modal-content-custom {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 200px;
+    }
+    .spinner-border-custom {
+      width: 3.5rem;
+      height: 3.5rem;
+      border: 0.25em solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spinner-border .75s linear infinite;
+      color: #000c8f;
+      margin-bottom: 1rem;
+    }
+    @keyframes spinner-border {
+      to { transform: rotate(360deg); }
+    }
+    .text-dark-custom {
+      color: #000c8f;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    /* Toast styles */
+    .toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1055;
+    }
+    .toast-message {
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .bg-success-toast { background-color: #10b981; }
+    .bg-danger-toast { background-color: #ef4444; }
+    .bg-info-toast { background-color: #3b82f6; }
+    .bg-warning-toast { background-color: #f59e0b; }
+  </style>
 </head>
-<body class="bg-gray-100 p-4 sm:p-6 md:p-8 min-h-screen">
+<body>
 
-    <!-- Main application container -->
-    <div id="app"></div>
-
-    <!-- Spinner Overlay -->
-    <div id="spinner-overlay" class="fixed top-0 left-0 w-full h-full bg-white bg-opacity-70 flex justify-center items-center z-[10000] hidden">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+<!-- Layout change: removed flex centering to align content to the top -->
+<div class="min-h-screen bg-gray-50 p-4">
+  <div class="w-full max-w-md mx-auto">
+    <div class="text-center mb-6">
+      <h4 class="text-2xl sm:text-3xl lg:text-4xl text-blue-900 font-bold mb-2">Sankalp Field Attendance</h4>
     </div>
 
-    <!-- Toast Message Container -->
-    <div id="toast-container" class="fixed top-4 right-4 z-[9999]"></div>
+    <div id="loginSection" class="bg-white p-6 rounded-2xl shadow-lg mb-6">
+      <h5 class="text-xl sm:text-2xl lg:text-3xl text-blue-900 font-bold mb-4">Login</h5>
+      <input
+        id="code"
+        type="text"
+        class="form-input w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500"
+        placeholder="Employee Code"
+      />
+      <input
+        id="password"
+        type="password"
+        class="form-input w-full p-3 mb-5 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500"
+        placeholder="Password"
+      />
+      <button
+        type="button"
+        class="btn bg-blue-700 text-white w-full py-3 text-lg font-semibold rounded-xl hover:bg-blue-800 transition-colors duration-300"
+        onclick="handleLogin()"
+      >
+        Login
+      </button>
+    </div>
 
-    <script>
-        // Use an object to manage the application state
-        const state = {
-            customer: null,
-            items: [],
-            filteredItems: [],
-            cart: [],
-            view: 'login', // 'login', 'store', 'cart'
-            isLoading: false,
-            mobile: '',
-            password: '',
-            shippingName: '',
-            shippingMobile: '',
-            shippingAddress: '',
-            shippingPincode: '',
-            searchInput: ''
-        };
+    <div id="mainSection" class="hidden">
+      <div class="bg-green-100 text-green-800 p-3 rounded-lg mb-4 text-md font-semibold" id="welcomeText"></div>
 
-        // --- Apps Script API URL ---
-        // IMPORTANT: This URL is taken from your previous input.
-        const appScriptUrl = 'https://script.google.com/macros/s/AKfycbwaLptYzQxXJbLys2Qq7ZL3pQx8XSSyf4jOD3RPnJm4K5IETJ8G8W7ViKxUDxvbaAbk/exec';
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <button
+          type="button"
+          class="btn bg-green-600 text-white py-3 text-lg font-semibold rounded-xl hover:bg-green-700 transition-colors duration-300 flex items-center justify-center"
+          id="punchInBtn"
+          onclick="handlePunchIn()"
+        >
+          <span class="mr-2">📍</span> Punch In
+        </button>
+        <button
+          type="button"
+          class="btn bg-red-600 text-white py-3 text-lg font-semibold rounded-xl hover:bg-red-700 transition-colors duration-300 flex items-center justify-center"
+          id="punchOutBtn"
+          onclick="handlePunchOut()"
+          disabled
+        >
+          <span class="mr-2">📤</span> Punch Out
+        </button>
+      </div>
 
-        // --- API Functions using Fetch ---
-        const api = {
-            // Function to handle login via Apps Script
-            checkLogin: (mobile, password) => {
-                const url = new URL(appScriptUrl);
-                url.searchParams.append('action', 'login');
-                url.searchParams.append('mobile', mobile);
-                url.searchParams.append('password', password);
+      <div class="mb-3">
+        <label for="punchInLocation" class="block text-gray-700 text-sm font-medium mb-1">Punch In Location</label>
+        <input type="text" class="form-input w-full p-3 text-lg border border-gray-300 rounded-xl bg-gray-100" id="punchInLocation" readonly />
+      </div>
+      <div class="mb-5">
+        <label for="punchOutLocation" class="block text-gray-700 text-sm font-medium mb-1">Punch Out Location</label>
+        <input type="text" class="form-input w-full p-3 text-lg border border-gray-300 rounded-xl bg-gray-100" id="punchOutLocation" readonly />
+      </div>
 
-                return fetch(url)
-                    .then(response => response.json())
-                    .catch(() => {
-                        throw new Error('Network or server error during login.');
-                    });
+      <form id="activityForm" class="card hidden p-6">
+        <h5 class="text-xl sm:text-2xl text-blue-900 font-bold mb-4">Activity Details</h5>
+
+        <label for="activityType" class="block text-gray-700 text-sm font-medium mb-1">Activity Type</label>
+        <select
+          id="activityType"
+          class="form-select w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500"
+          onchange="toggleFieldSections()"
+        >
+          <option value="Daily Report">Daily Report</option>
+          <option value="Visit">Visit</option>
+          <option value="Farmer Meeting">Farmer Meeting</option>
+          <option value="Crop Demo">Crop Demo</option>
+          <option value="Calling to schedule meeting">Calling to schedule meeting</option>
+          <option value="Whatsapp Message">Whatsapp Message</option>
+          <option value="Telecalling sale">Telecalling sale</option>
+        </select>
+
+        <label for="custCategory" class="block text-gray-700 text-sm font-medium mb-1">Customer Category</label>
+        <select id="custCategory" class="form-select w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500">
+          <option value="">Select</option>
+          <option value="Sankalp Partner">Sankalp Partner</option>
+          <option value="Sankalp Mitra">Sankalp Mitra</option>
+          <option value="Farmer">Farmer</option>
+        </select>
+
+        <label for="custName" class="block text-gray-700 text-sm font-medium mb-1">Customer Name</label>
+        <input type="text" class="form-input w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500" id="custName" />
+
+        <label for="mobile" class="block text-gray-700 text-sm font-medium mb-1">Mobile Number</label>
+        <input
+          type="tel"
+          class="form-input w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500"
+          id="mobile"
+          placeholder="e.g., 9876543210 (10-digits)"
+          maxlength="10"
+        />
+
+        <label for="location" class="block text-gray-700 text-sm font-medium mb-1">Location</label>
+        <input type="text" class="form-input w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl bg-gray-100" id="location" readonly placeholder="Fetching GPS..." />
+
+        <label for="message" class="block text-gray-700 text-sm font-medium mb-1">Message</label>
+        <textarea class="form-textarea w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 resize-y min-h-[100px]" id="message"></textarea>
+
+        <div class="sales-feedback">
+          <label for="product" class="block text-gray-700 text-sm font-medium mb-1">Product</label>
+          <input type="text" class="form-input w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500" id="product" />
+
+          <label for="cpc" class="block text-gray-700 text-sm font-medium mb-1">CPC Sale</label>
+          <input type="number" class="form-input w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500" id="cpc" />
+
+          <label for="snd" class="block text-gray-700 text-sm font-medium mb-1">SND Sale</label>
+          <input type="number" class="form-input w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500" id="snd" />
+
+          <label for="seed" class="block text-gray-700 text-sm font-medium mb-1">SEED Sale</label>
+          <input type="number" class="form-input w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500" id="seed" />
+
+          <label for="feq" class="block text-gray-700 text-sm font-medium mb-1">FEQ Sale</label>
+          <input type="number" class="form-input w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500" id="feq" />
+
+          <label for="vet" class="block text-gray-700 text-sm font-medium mb-1">VET Sale</label>
+          <input type="number" class="form-input w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500" id="vet" />
+
+          <label for="wentWell" class="block text-gray-700 text-sm font-medium mb-1">What Went Well</label>
+          <textarea class="form-textarea w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 resize-y min-h-[100px]" id="wentWell"></textarea>
+
+          <label for="notWell" class="block text-gray-700 text-sm font-medium mb-1">What Did Not Go Well</label>
+          <textarea class="form-textarea w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 resize-y min-h-[100px]" id="notWell"></textarea>
+
+          <label for="improve" class="block text-gray-700 text-sm font-medium mb-1">How I Will Improve</label>
+          <textarea class="form-textarea w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 resize-y min-h-[100px]" id="improve"></textarea>
+
+          <label for="support" class="block text-gray-700 text-sm font-medium mb-1">Support Required</label>
+          <textarea class="form-textarea w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 resize-y min-h-[100px]" id="support"></textarea>
+        </div>
+
+        <label for="images" class="block text-gray-700 text-sm font-medium mb-1">Upload Images</label>
+        <input
+          type="file"
+          class="form-input w-full p-3 mb-3 text-lg border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          id="images"
+          multiple
+          accept="image/*"
+        />
+        <div id="previewImages" class="mt-2 flex flex-wrap gap-2"></div>
+
+        <button
+          type="button"
+          class="btn bg-blue-700 text-white w-full py-3 text-lg font-semibold rounded-xl hover:bg-blue-800 transition-colors duration-300 mt-5"
+          onclick="submitActivity()"
+        >
+          Submit Activity
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Spinner Modal -->
+  <div id="loadingModal" class="modal-overlay hidden">
+    <div class="modal-content-custom">
+      <div class="spinner-border-custom" role="status">
+<!--         <span class="visually-hidden">Loading...</span> -->
+      </div>
+      <div class="text-dark-custom">Processing...</div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script>
+    // IMPORTANT: Replace this with your deployed Google Apps Script Web App URL
+    const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx_HW0nmW-6FcdPmQjRlJzOPpg3kJyj8KxnWZYFZBRDnYaS5yJkGbYd4ecM5dNfQGQSmg/exec';
+
+    // Global state variables
+    let user = null;
+    let punchInData = null; // { lat, lon, time }
+    let loading = false;
+    let toast = { message: '', type: '' };
+    let activityFormVisible = false;
+    let punchInBtnDisabled = false;
+    let punchOutBtnDisabled = true;
+    let resizedImagesData = []; // To store base64 of resized images
+
+    // --- DOM Element References (for easier access) ---
+    const loginSection = document.getElementById('loginSection');
+    const mainSection = document.getElementById('mainSection');
+    const welcomeText = document.getElementById('welcomeText');
+    const employeeCodeInput = document.getElementById('code');
+    const passwordInput = document.getElementById('password');
+    const punchInBtn = document.getElementById('punchInBtn');
+    const punchOutBtn = document.getElementById('punchOutBtn');
+    const punchInLocationInput = document.getElementById('punchInLocation');
+    const punchOutLocationInput = document.getElementById('punchOutLocation');
+    const activityForm = document.getElementById('activityForm');
+    const activityTypeSelect = document.getElementById('activityType');
+    const custCategorySelect = document.getElementById('custCategory');
+    const custNameInput = document.getElementById('custName');
+    const mobileInput = document.getElementById('mobile');
+    const activityLocationInput = document.getElementById('location');
+    const messageTextarea = document.getElementById('message');
+    const productInput = document.getElementById('product');
+    const cpcInput = document.getElementById('cpc');
+    const sndInput = document.getElementById('snd');
+    const seedInput = document.getElementById('seed');
+    const feqInput = document.getElementById('feq');
+    const vetInput = document.getElementById('vet');
+    const wentWellTextarea = document.getElementById('wentWell');
+    const notWellTextarea = document.getElementById('notWell');
+    const improveTextarea = document.getElementById('improve');
+    const supportTextarea = document.getElementById('support');
+    const imagesInput = document.getElementById('images');
+    const previewImagesDiv = document.getElementById('previewImages');
+    const salesFeedbackSection = document.querySelector('.sales-feedback');
+    const loadingModal = document.getElementById('loadingModal');
+    const toastContainer = document.getElementById('toastContainer');
+
+    // Haversine formula to calculate distance between two lat/lon points
+    const haversineDistance = (lat1, lon1, lat2, lon2) => {
+      const R = 6371; // Radius of Earth in kilometers
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distance = R * c; // Distance in kilometers
+      return distance.toFixed(2); // Return distance rounded to 2 decimal places
+    };
+
+    // --- UI Update Function ---
+    // This function updates the DOM based on the current state variables
+    function updateUI() {
+      if (loading) {
+        loadingModal.classList.remove('hidden');
+      } else {
+        loadingModal.classList.add('hidden');
+      }
+
+      if (user) {
+        loginSection.classList.add('hidden');
+        mainSection.classList.remove('hidden');
+        welcomeText.innerText = `Welcome, ${user.name}`;
+        punchInBtn.disabled = punchInBtnDisabled;
+        punchOutBtn.disabled = punchOutBtnDisabled;
+        if (activityFormVisible) {
+          activityForm.classList.remove('hidden');
+        } else {
+          activityForm.classList.add('hidden');
+        }
+      } else {
+        loginSection.classList.remove('hidden');
+        mainSection.classList.add('hidden');
+      }
+
+      // Update form field values
+      // These inputs are updated directly by their respective functions,
+      // so no need to re-assign here, just ensure the UI reflects the current state.
+      // E.g., punchInLocationInput.value is set in handlePunchIn()
+
+      // Toggle sales feedback section
+      if (salesFeedbackSection) {
+        salesFeedbackSection.style.display = (activityTypeSelect.value === "Daily Report") ? 'block' : 'none';
+      }
+    }
+
+    // --- Toast and Loader Functions ---
+    function showLoader() {
+      loading = true;
+      updateUI();
+    }
+
+    function hideLoader() {
+      loading = false;
+      updateUI();
+    }
+
+    function showToast(msg, type = 'info') {
+      const id = "toast" + Date.now();
+      const bgClass = {
+        success: "bg-success-toast",
+        error: "bg-danger-toast",
+        info: "bg-info-toast",
+        warning: "bg-warning-toast"
+      }[type] || "bg-info-toast";
+
+      const toastElement = document.createElement("div");
+      toastElement.className = `toast-message ${bgClass} show`;
+      toastElement.id = id;
+      toastElement.setAttribute("role", "alert");
+      toastElement.setAttribute("aria-live", "assertive");
+      toastElement.setAttribute("aria-atomic", "true");
+      toastElement.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div class="toast-body">${msg}</div>
+          <button type="button" class="ml-4 text-white opacity-70 hover:opacity-100 focus:outline-none" onclick="document.getElementById('${id}').remove()" aria-label="Close">&times;</button>
+        </div>`;
+      toastContainer.appendChild(toastElement);
+      setTimeout(() => toastElement.remove(), 4000);
+    }
+
+    // --- Geolocation Helper ---
+    const getGeoLocation = () => {
+      return new Promise((resolve, reject) => {
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => resolve(pos),
+            (error) => {
+              let msg = "Location unavailable";
+              if (error.code === error.PERMISSION_DENIED) {
+                msg = "Location permission denied.";
+              } else if (error.code === error.POSITION_UNAVAILABLE) {
+                msg = "Location information is unavailable.";
+              } else if (error.code === error.TIMEOUT) {
+                msg = "The request to get user location timed out.";
+              }
+              reject(msg);
             },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+          );
+        } else {
+          reject("Geolocation is not supported by your browser.");
+        }
+      });
+    };
 
-            // Function to fetch items for a specific store via Apps Script
-            getItems: (storeId) => {
-                const url = new URL(appScriptUrl);
-                url.searchParams.append('action', 'getItems');
-                url.searchParams.append('storeId', storeId);
+    // --- General Fetch to Apps Script ---
+    async function sendToAppsScript(action, payload) {
+      // Check if the URL is set and not the initial placeholder
+      if (!APPS_SCRIPT_WEB_APP_URL || APPS_SCRIPT_WEB_APP_URL.includes('YOUR_APPS_SCRIPT_WEB_APP_URL') || APPS_SCRIPT_WEB_APP_URL.includes('AKfycbw01AKQ2LW8iPGta5ffFE2wfylZtW61OLRWyfaVkttAMkvneJyz0IZWCHYzS4Oydha7')) {
+        throw new Error("Apps Script Web App URL is not configured correctly. Please update APPS_SCRIPT_WEB_APP_URL in the HTML.");
+      }
 
-                return fetch(url)
-                    .then(response => response.json())
-                    .catch(() => {
-                        throw new Error('Network or server error when fetching items.');
-                    });
-            },
+      const url = new URL(APPS_SCRIPT_WEB_APP_URL);
+      url.searchParams.append('action', action); // Add action to query params for doGet/doPost
 
-            // Function to submit an order to Apps Script
-            submitOrder: (payload) => {
-                const url = new URL(appScriptUrl);
-                url.searchParams.append('action', 'submitOrder');
+      const response = await fetch(url.toString(), {
+        method: 'POST', // Use POST for all actions for consistency with doPost
+        headers: {
+          'Content-Type': 'text/plain', // Apps Script doPost typically expects text/plain for e.postData.contents
+        },
+        body: JSON.stringify(payload), // Send payload as JSON string
+      });
 
-                return fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                })
-                .then(response => response.json())
-                .catch(() => {
-                    throw new Error('Network or server error during order submission.');
-                });
-            }
-        };
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Server error: ${response.status} - ${errorText}`);
+      }
 
-        // DOM Elements
-        const appContainer = document.getElementById('app');
-        const spinnerOverlay = document.getElementById('spinner-overlay');
-        const toastContainer = document.getElementById('toast-container');
+      const responseText = await response.text();
+      try {
+        return JSON.parse(responseText);
+      } catch (e) {
+        console.warn("Apps Script response was not JSON:", responseText);
+        // If Apps Script returns plain text (e.g., simple success message), treat as success
+        return { success: true, message: responseText }; // Fallback for non-JSON responses
+      }
+    }
 
-        // Show a toast message
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            let bgColor = 'bg-green-500';
-            if (type === 'error') bgColor = 'bg-red-500';
-            if (type === 'info') bgColor = 'bg-blue-500';
+    // --- Login Handler ---
+    async function handleLogin() {
+      const code = employeeCodeInput.value.trim();
+      const pass = passwordInput.value.trim();
 
-            toast.className = `rounded-xl shadow-lg p-4 text-white flex items-center gap-4 ${bgColor}`;
-            toast.innerHTML = `
-                <span class="font-semibold text-lg">${message}</span>
-                <button class="text-xl font-bold leading-none">&times;</button>
-            `;
-            toast.querySelector('button').addEventListener('click', () => toast.remove());
-            toastContainer.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+      if (!code || !pass) {
+        return showToast("Enter employee code and password", "warning");
+      }
+
+      showLoader();
+      try {
+        const res = await sendToAppsScript('verifyLogin', { code, password: pass });
+
+        if (!res || !res.user) {
+          throw new Error(res.message || 'Invalid credentials');
         }
 
-        // Set loading state
-        function setIsLoading(loading) {
-            state.isLoading = loading;
-            spinnerOverlay.style.display = loading ? 'flex' : 'none';
+        user = res.user;
+        sessionStorage.setItem("user", JSON.stringify(user));
+        showToast(`Welcome, ${user.name}`, "success");
+        checkPunchStatus(user.code); // Pass user code directly
+      } catch (err) {
+        showToast("Login failed: " + err.message, "error");
+      } finally {
+        hideLoader();
+      }
+    }
+
+    // --- Punch In Handler ---
+    async function handlePunchIn() {
+      if (!user) {
+        showToast("Please log in first.", "error");
+        return;
+      }
+
+      showLoader();
+      try {
+        const pos = await getGeoLocation();
+        const now = new Date().toISOString();
+        const newPunchInData = { lat: pos.coords.latitude, lon: pos.coords.longitude, time: now };
+
+        const res = await sendToAppsScript('punchIn', {
+          code: user.code,
+          name: user.name,
+          timestamp: now,
+          latitude: newPunchInData.lat,
+          longitude: newPunchInData.lon,
+        });
+
+        if (!res || !res.success) {
+          throw new Error(res.message || 'Punch In failed');
         }
 
-        // Handle user login
-        async function handleLogin() {
-            if (!state.mobile || !state.password) {
-                showToast('Please enter both mobile number and password.', 'error');
-                return;
-            }
+        punchInData = newPunchInData;
+        punchInBtnDisabled = true;
+        punchOutBtnDisabled = false;
+        activityFormVisible = true;
+        punchInLocationInput.value = `${newPunchInData.lat}, ${newPunchInData.lon}`;
+        getActivityLocation(); // Get location for activity form
+        showToast("📍 Punch In Successful", "success");
+      } catch (err) {
+        showToast("Punch In failed: " + err, "error");
+      } finally {
+        hideLoader();
+        updateUI(); // Update UI after state changes
+      }
+    }
 
-            setIsLoading(true);
-            try {
-                const res = await api.checkLogin(state.mobile, state.password);
-                if (res.status === 'success') {
-                    state.customer = res.customer;
-                    showToast('✅ Login successful');
-                    state.view = 'store';
-                    // The Apps Script function returns a direct array, so we don't access a .items property
-                    const fetchedItems = await api.getItems(res.customer.StoreID);
-                    state.items = fetchedItems;
-                    state.filteredItems = [...fetchedItems];
-                } else {
-                    showToast('❌ Invalid login', 'error');
-                }
-            } catch (error) {
-                showToast(`Login failed: ${error.message}`, 'error');
-            } finally {
-                setIsLoading(false);
-                renderApp();
-            }
+    // --- Punch Out Handler ---
+    async function handlePunchOut() {
+      if (!user || !punchInData) {
+        showToast("No active Punch In session found.", "warning");
+        return;
+      }
+
+      showLoader();
+      try {
+        const pos = await getGeoLocation();
+        const outTime = new Date().toISOString();
+        const outLat = pos.coords.latitude;
+        const outLon = pos.coords.longitude;
+
+        const res = await sendToAppsScript('punchOut', {
+          code: user.code,
+          name: user.name,
+          punchInTime: punchInData.time,
+          punchInLat: punchInData.lat,
+          punchInLon: punchInData.lon,
+          punchOutTime: outTime,
+          punchOutLat: outLat,
+          punchOutLon: outLon,
+        });
+
+        if (!res || !res.success) {
+          throw new Error(res.message || 'Punch Out failed');
         }
 
-        // Handle user logout
-        function handleLogout() {
-            state.customer = null;
-            state.items = [];
-            state.cart = [];
-            state.mobile = '';
-            state.password = '';
-            state.shippingName = '';
-            state.shippingMobile = '';
-            state.shippingAddress = '';
-            state.shippingPincode = '';
-            state.searchInput = '';
-            state.view = 'login';
-            showToast('👋 You have been logged out.', 'info');
-            renderApp();
+        showToast(`📤 Punch Out Done — Distance: ${res.distance} KM`, "success");
+        sessionStorage.removeItem("user");
+        user = null;
+        punchInData = null;
+        employeeCodeInput.value = '';
+        passwordInput.value = '';
+        punchInLocationInput.value = '';
+        punchOutLocationInput.value = '';
+        activityFormVisible = false;
+        punchInBtnDisabled = false;
+        punchOutBtnDisabled = true;
+        resetActivityForm(); // Reset all activity form fields
+      } catch (err) {
+        showToast("Punch Out failed: " + err, "error");
+      } finally {
+        hideLoader();
+        updateUI(); // Update UI after state changes
+      }
+    }
+
+    // --- Get Activity Location ---
+    async function getActivityLocation() {
+      activityLocationInput.value = "Fetching GPS...";
+      try {
+        const pos = await getGeoLocation();
+        activityLocationInput.value = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+      } catch (errMsg) {
+        activityLocationInput.value = "GPS not available: " + errMsg;
+      }
+    }
+
+    // --- Submit Activity Handler ---
+    async function submitActivity() {
+      let currentActivityLocation = activityLocationInput.value.trim();
+      const currentActivityType = activityTypeSelect.value;
+
+      // Location is mandatory for ALL activity types EXCEPT "Daily Report"
+      if (currentActivityType !== "Daily Report") {
+        if (!currentActivityLocation || currentActivityLocation.includes("GPS not available") || currentActivityLocation.includes("Fetching GPS...")) {
+          showToast("Attempting to get location...", "info");
+          try {
+            const pos = await getGeoLocation();
+            currentActivityLocation = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+            activityLocationInput.value = currentActivityLocation; // Update UI
+          } catch (errMsg) {
+            showToast("📍 Location is required for this activity type and could not be obtained: " + errMsg, "error");
+            activityLocationInput.value = "GPS not available: " + errMsg; // Update UI with error
+            return; // Block submission
+          }
+        }
+      }
+
+      // Mobile number validation (now mandatory)
+      const mobileNum = mobileInput.value.trim();
+      if (!mobileNum) {
+        return showToast("Mobile number is mandatory.", "error");
+      }
+      if (!/^\d{10}$/.test(mobileNum)) {
+        return showToast("Invalid mobile number. Please enter a 10-digit number.", "error");
+      }
+
+      // ONLY show loader AFTER all client-side validations pass
+      showLoader();
+
+      const data = {
+        code: user.code,
+        name: user.name,
+        timestamp: new Date().toISOString(),
+        activityType: currentActivityType,
+        custCategory: custCategorySelect.value.trim(),
+        custName: custNameInput.value.trim(),
+        mobile: mobileNum,
+        location: currentActivityLocation,
+        message: messageTextarea.value.trim(),
+      };
+
+      if (currentActivityType === "Daily Report") {
+        Object.assign(data, {
+          product: productInput.value.trim(),
+          cpc: cpcInput.value.trim(),
+          snd: sndInput.value.trim(),
+          seed: seedInput.value.trim(),
+          feq: feqInput.value.trim(),
+          vet: vetInput.value.trim(),
+          wentWell: wentWellTextarea.value.trim(),
+          notWell: notWellTextarea.value.trim(),
+          improve: improveTextarea.value.trim(),
+          support: supportTextarea.value.trim()
+        });
+      }
+
+      // Check if images are being processed
+      if (imagesInput.files.length > 0 && resizedImagesData.length === 0) {
+        hideLoader();
+        showToast("Please wait for images to finish processing. Try again in a moment.", "info");
+        return;
+      }
+
+      try {
+        const action = resizedImagesData.length > 0 ? 'submitActivityWithImages' : 'submitActivity';
+        const payload = resizedImagesData.length > 0 ? { ...data, images: resizedImagesData } : data;
+
+        const res = await sendToAppsScript(action, payload);
+
+        if (!res || !res.success) {
+          throw new Error(res.message || 'Activity submission failed');
         }
 
-        // Add an item to the cart
-        function addToCart(item) {
-            const itemIndex = state.cart.findIndex(cartItem => cartItem.ItemID === item.ItemID);
-            if (itemIndex > -1) {
-                state.cart[itemIndex].Qty++;
-            } else {
-                state.cart.push({ ...item, Qty: 1 });
-            }
-            showToast(`Added ${item.ItemName} to cart.`);
-            renderApp();
+        showToast(`✅ Activity ${resizedImagesData.length > 0 ? '& Images ' : ''}Submitted`, "success");
+        resetActivityForm();
+        getActivityLocation(); // Re-fetch location for next activity
+        toggleFieldSections(); // Re-toggle visibility for default activity
+      } catch (err) {
+        showToast("Activity submission failed: " + err.message, "error");
+      } finally {
+        hideLoader();
+        updateUI(); // Update UI after state changes
+      }
+    }
+
+    // --- Check Punch Status ---
+    async function checkPunchStatus(employeeCodeToCheck) {
+      if (!employeeCodeToCheck) return;
+
+      try {
+        const res = await sendToAppsScript('checkPunchStatus', { code: employeeCodeToCheck });
+
+        if (!res || typeof res.isIn === 'undefined') {
+          throw new Error(res.message || 'Failed to get punch status');
         }
 
-        // Remove an item from the cart
-        function removeItem(itemId) {
-            state.cart = state.cart.filter(cartItem => cartItem.ItemID !== itemId);
-            showToast(`Removed from cart.`, 'info');
-            renderApp();
+        if (res.isIn) {
+          punchInBtnDisabled = true;
+          punchOutBtnDisabled = false;
+          // Logic change: Set activityFormVisible to true if the user is already punched in.
+          activityFormVisible = true;
+          punchInLocationInput.value = res.punchInLoc || "Location not recorded";
+          // Fix: Correctly parse "lat,lng" string from Apps Script response
+          const locParts = (res.punchInLoc || "").split(',');
+          if (locParts.length === 2 && !isNaN(parseFloat(locParts[0])) && !isNaN(parseFloat(locParts[1]))) {
+            punchInData = { lat: parseFloat(locParts[0]), lon: parseFloat(locParts[1]), time: res.punchInTime };
+          } else {
+            punchInData = { lat: null, lon: null, time: res.punchInTime };
+            console.warn("Could not parse punch-in coordinates from string:", res.punchInLoc);
+          }
+          getActivityLocation();
+        } else {
+          punchInBtnDisabled = false;
+          punchOutBtnDisabled = true;
+          activityFormVisible = false;
         }
+      } catch (err) {
+        console.error("Failed to check punch status: ", err.message);
+        showToast("Could not retrieve punch status.", "error");
+        punchInBtnDisabled = false;
+        punchOutBtnDisabled = true;
+        activityFormVisible = false;
+      } finally {
+        toggleFieldSections(); // Ensure correct fields are shown/hidden based on activity type
+        updateUI(); // Update UI after state changes
+      }
+    }
 
-        // Handle order submission
-        async function handleSubmitOrder() {
-            if (state.cart.length === 0) {
-                showToast('Your cart is empty. Please add items before placing an order.', 'error');
-                return;
-            }
-            if (!state.shippingName || !state.shippingMobile || !state.shippingAddress || !state.shippingPincode) {
-                showToast('Please fill in all shipping details.', 'error');
-                return;
-            }
+    // --- Toggle Activity Fields Visibility ---
+    function toggleFieldSections() {
+      if (salesFeedbackSection) {
+        salesFeedbackSection.style.display = (activityTypeSelect.value === "Daily Report") ? 'block' : 'none';
+      }
 
-            setIsLoading(true);
-            const payload = {
-                customer: {
-                    LoginMobile: state.customer.Mobile,
-                    LoginName: state.customer.Name
-                },
-                shipping: {
-                    CustomerName: state.shippingName,
-                    CustomerMobile: state.shippingMobile,
-                    Address: state.shippingAddress,
-                    Pincode: state.shippingPincode
-                },
-                cart: state.cart.map(item => ({
-                    ItemID: item.ItemID,
-                    ItemName: item.ItemName,
-                    Rate: item.Rate,
-                    Qty: item.Qty,
-                    Amount: item.Rate * item.Qty
-                }))
-            };
+      if (activityTypeSelect.value !== "Daily Report") {
+        getActivityLocation();
+      } else {
+        activityLocationInput.value = ""; // Clear location if not required
+      }
+    }
 
-            try {
-                // The Apps Script now returns a JSON response which we can read.
-                const res = await api.submitOrder(payload);
-                if (res.status === 'success') {
-                    showToast('✅ Order Placed! You should receive an update shortly.');
-                    state.cart = []; // Clear cart
-                    state.view = 'store'; // Return to store view
-                } else {
-                    showToast('Order failed. Please try again.', 'error');
-                }
-            } catch (error) {
-                showToast(`Order submission failed: ${error.message}`, 'error');
-            } finally {
-                setIsLoading(false);
-                renderApp();
-            }
-        }
+    // --- Client-side Image Resizing Logic ---
+    async function processImages(files) {
+      previewImagesDiv.innerHTML = "";
+      resizedImagesData = []; // Clear previous data
 
-        // Render the login view
-        function renderLoginView() {
-            appContainer.innerHTML = `
-                <div class="max-w-md mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg mt-8">
-                    <h3 class="text-2xl sm:text-3xl font-semibold mb-6 text-center text-gray-800">🔐 Customer Login</h3>
-                    <input
-                        type="text"
-                        id="mobileInput"
-                        class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-base sm:text-lg"
-                        placeholder="Mobile Number"
-                        value="${state.mobile}"
-                    />
-                    <input
-                        type="password"
-                        id="passwordInput"
-                        class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-base sm:text-lg"
-                        placeholder="Password"
-                        value="${state.password}"
-                    />
-                    <button
-                        id="loginBtn"
-                        class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 ease-in-out shadow-md text-base sm:text-lg"
-                    >
-                        Login
-                    </button>
-                </div>
-            `;
-            // Add event listeners
-            document.getElementById('mobileInput').addEventListener('input', (e) => state.mobile = e.target.value);
-            document.getElementById('passwordInput').addEventListener('input', (e) => state.password = e.target.value);
-            document.getElementById('loginBtn').addEventListener('click', handleLogin);
-        }
+      // Show processing toast
+      showToast("Processing images...", "info");
+      
+      const resizePromises = Array.from(files).map(file => {
+          return new Promise((resolve, reject) => {
+              if (!file.type.startsWith('image/')) {
+                  reject("Not an image file");
+                  return;
+              }
 
-        // Render the store view
-        function renderStoreView() {
-            const totalCartItems = state.cart.reduce((total, item) => total + item.Qty, 0);
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                  const img = new Image();
+                  img.src = e.target.result;
+                  img.onload = () => {
+                      const MAX_WIDTH = 1024;
+                      const MAX_HEIGHT = 768;
+                      let width = img.width;
+                      let height = img.height;
 
-            let itemsHtml = state.filteredItems.map(item => {
-                const itemInCart = state.cart.find(ci => ci.ItemID === item.ItemID);
-                const quantityInCart = itemInCart ? itemInCart.Qty : 0;
-                const buttonText = quantityInCart > 0 ? `Add More (${quantityInCart})` : `Add to Cart`;
-                const buttonColor = quantityInCart > 0 ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600';
+                      if (width > height) {
+                          if (width > MAX_WIDTH) {
+                              height *= MAX_WIDTH / width;
+                              width = MAX_WIDTH;
+                          }
+                      } else {
+                          if (height > MAX_HEIGHT) {
+                              width *= MAX_HEIGHT / height;
+                              height = MAX_HEIGHT;
+                          }
+                      }
 
-                return `
-                    <div class="item-card bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-lg transition duration-300 ease-in-out flex flex-col justify-between">
-                        <div>
-                            <h6 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">${item.ItemName}</h6>
-                            <p class="text-gray-800 text-base sm:text-lg mb-4">₹${item.Rate.toFixed(2)}</p>
-                        </div>
-                        <button
-                            class="w-full text-white px-4 py-2 rounded-md font-semibold transition duration-200 ease-in-out text-base sm:text-lg ${buttonColor}"
-                            data-item-id="${item.ItemID}"
-                        >
-                            ${buttonText}
-                        </button>
-                    </div>
-                `;
-            }).join('');
+                      const canvas = document.createElement('canvas');
+                      canvas.width = width;
+                      canvas.height = height;
+                      const ctx = canvas.getContext('2d');
+                      ctx.drawImage(img, 0, 0, width, height);
 
-            appContainer.innerHTML = `
-                <div class="max-w-5xl mx-auto bg-white p-4 sm:p-6 rounded-xl shadow-lg mt-8">
-                    <div class="text-center mb-4">
-                        <h2 class="text-3xl sm:text-4xl font-bold text-gray-800">${state.customer.StoreName}</h2>
-                    </div>
-                    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 border-t pt-4">
-                        <h4 class="text-xl sm:text-2xl font-medium text-green-600 mb-4 sm:mb-0">
-                            Welcome, ${state.customer.Name}
-                        </h4>
-                        <div class="flex items-center space-x-2 sm:space-x-4">
-                            <button
-                                id="viewCartBtn"
-                                class="bg-purple-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold hover:bg-purple-700 transition duration-300 ease-in-out shadow-md text-base sm:text-lg"
-                            >
-                                🛒 Cart (${totalCartItems})
-                            </button>
-                            <button
-                                id="logoutBtn"
-                                class="bg-red-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold hover:bg-red-700 transition duration-300 ease-in-out shadow-md text-base sm:text-lg"
-                            >
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-                    <div id="itemListingSection">
-                        <input
-                            type="text"
-                            id="searchInput"
-                            class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-base sm:text-lg"
-                            placeholder="Search items..."
-                            value="${state.searchInput}"
-                        />
-                        <div id="items" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                            ${itemsHtml}
-                        </div>
-                    </div>
-                </div>
-            `;
-            // Add event listeners
-            document.getElementById('viewCartBtn').addEventListener('click', () => {
-                state.view = 'cart';
-                renderApp();
-            });
-            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-            document.getElementById('searchInput').addEventListener('input', (e) => {
-                state.searchInput = e.target.value;
-                const q = state.searchInput.toLowerCase();
-                state.filteredItems = state.items.filter(item => item.ItemName.toLowerCase().includes(q));
-                renderApp();
-            });
-            document.querySelectorAll('.item-card button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const itemId = e.target.dataset.itemId;
-                    const item = state.items.find(i => i.ItemID === itemId);
-                    if (item) addToCart(item);
-                });
-            });
-        }
+                      // Get the base64 string with reduced quality
+                      const resizedBase64 = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+                      
+                      // Display a smaller preview
+                      const previewImg = document.createElement("img");
+                      previewImg.src = canvas.toDataURL('image/jpeg', 0.5);
+                      previewImg.className = "h-24 w-auto rounded-lg shadow-sm mr-2 mt-2";
+                      previewImagesDiv.appendChild(previewImg);
 
-        // Render the cart view
-        function renderCartView() {
-            const cartTotal = state.cart.reduce((total, item) => total + item.Rate * item.Qty, 0).toFixed(2);
+                      resolve({
+                          name: file.name,
+                          content: resizedBase64
+                      });
+                  };
+                  img.onerror = () => reject("Image loading error");
+              };
+              reader.onerror = () => reject("File reading error");
+              reader.readAsDataURL(file);
+          });
+      });
 
-            let cartItemsHtml = '';
-            if (state.cart.length === 0) {
-                cartItemsHtml = `<p class="text-gray-600 italic text-base sm:text-lg">Your cart is empty.</p>`;
-            } else {
-                cartItemsHtml = state.cart.map(item => `
-                    <div class="flex justify-between items-center py-3 border-b border-gray-200 last:border-b-0">
-                        <span class="text-gray-800 text-base sm:text-lg">${item.ItemName} x ${item.Qty}</span>
-                        <div class="flex items-center space-x-2 sm:space-x-4">
-                            <span class="text-gray-900 font-medium text-base sm:text-lg">₹${(item.Qty * item.Rate).toFixed(2)}</span>
-                            <button
-                                class="bg-red-500 text-white px-2 py-1 sm:px-3 rounded-md text-sm sm:text-base font-semibold hover:bg-red-600 transition"
-                                data-item-id="${item.ItemID}"
-                            >
-                                Remove
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-                cartItemsHtml += `
-                    <div class="mt-4 pt-4 border-t-2 border-gray-300 flex justify-between items-center">
-                        <span class="text-lg sm:text-xl font-bold text-gray-900">Total:</span>
-                        <span class="text-lg sm:text-xl font-bold text-gray-900">₹${cartTotal}</span>
-                    </div>
-                `;
-            }
+      try {
+          resizedImagesData = await Promise.all(resizePromises);
+          showToast(`✅ ${resizedImagesData.length} images ready to upload.`, "success");
+      } catch(error) {
+          console.error("Image processing failed:", error);
+          showToast("Image processing failed. Please try again.", "error");
+          resizedImagesData = [];
+          previewImagesDiv.innerHTML = "";
+      }
+    }
 
-            appContainer.innerHTML = `
-                <div class="max-w-5xl mx-auto bg-white p-4 sm:p-6 rounded-xl shadow-lg mt-8">
-                    <button
-                        id="backToStoreBtn"
-                        class="bg-gray-500 text-white px-4 py-2 sm:px-5 sm:py-2 rounded-lg font-semibold hover:bg-gray-600 transition duration-300 ease-in-out shadow-md mb-6 text-base sm:text-lg"
-                    >
-                        &larr; Back to Shopping
-                    </button>
-                    <h5 class="text-2xl sm:text-3xl font-semibold mb-4 text-gray-800">🛒 Your Cart</h5>
-                    <div id="cart" class="mb-8 border border-gray-200 rounded-lg p-4 bg-gray-50">
-                        ${cartItemsHtml}
-                    </div>
-                    <h5 class="text-2xl sm:text-3xl font-semibold mb-4 text-gray-800">🚚 Shipping Details</h5>
-                    <input
-                        type="text"
-                        id="shippingNameInput"
-                        class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-base sm:text-lg"
-                        placeholder="Customer Name"
-                        value="${state.shippingName}"
-                    />
-                    <input
-                        type="text"
-                        id="shippingMobileInput"
-                        class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-base sm:text-lg"
-                        placeholder="Mobile Number"
-                        value="${state.shippingMobile}"
-                    />
-                    <textarea
-                        id="shippingAddressInput"
-                        class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-base sm:text-lg"
-                        placeholder="Full Address"
-                        rows="3"
-                    >${state.shippingAddress}</textarea>
-                    <input
-                        type="text"
-                        id="shippingPincodeInput"
-                        class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-base sm:text-lg"
-                        placeholder="Pincode"
-                        value="${state.shippingPincode}"
-                    />
-                    <button
-                        id="submitBtn"
-                        class="w-full bg-green-600 text-white p-3 sm:p-4 rounded-lg font-semibold hover:bg-green-700 transition duration-300 ease-in-out shadow-md text-lg sm:text-xl ${state.cart.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
-                        ${state.cart.length === 0 ? 'disabled' : ''}
-                    >
-                        Place Order
-                    </button>
-                </div>
-            `;
-            // Add event listeners
-            document.getElementById('backToStoreBtn').addEventListener('click', () => {
-                state.view = 'store';
-                renderApp();
-            });
-            document.getElementById('shippingNameInput').addEventListener('input', (e) => state.shippingName = e.target.value);
-            document.getElementById('shippingMobileInput').addEventListener('input', (e) => state.shippingMobile = e.target.value);
-            document.getElementById('shippingAddressInput').addEventListener('input', (e) => state.shippingAddress = e.target.value);
-            document.getElementById('shippingPincodeInput').addEventListener('input', (e) => state.shippingPincode = e.target.value);
-            document.getElementById('submitBtn').addEventListener('click', handleSubmitOrder);
-            document.querySelectorAll('#cart button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const itemId = e.target.dataset.itemId;
-                    if (itemId) removeItem(itemId);
-                });
-            });
-        }
+    // --- Reset Activity Form Fields ---
+    function resetActivityForm() {
+      activityTypeSelect.value = 'Daily Report';
+      custCategorySelect.value = '';
+      custNameInput.value = '';
+      mobileInput.value = '';
+      activityLocationInput.value = 'Fetching GPS...';
+      messageTextarea.value = '';
+      productInput.value = '';
+      cpcInput.value = '';
+      sndInput.value = '';
+      seedInput.value = '';
+      feqInput.value = '';
+      vetInput.value = '';
+      wentWellTextarea.value = '';
+      notWellTextarea.value = '';
+      improveTextarea.value = '';
+      supportTextarea.value = '';
+      resizedImagesData = [];
+      imagesInput.value = ''; // Clear file input
+      previewImagesDiv.innerHTML = ""; // Clear image previews
+      toggleFieldSections(); // Re-toggle visibility for default activity
+    }
 
-        // Main render function
-        function renderApp() {
-            switch (state.view) {
-                case 'login':
-                    renderLoginView();
-                    break;
-                case 'store':
-                    renderStoreView();
-                    break;
-                case 'cart':
-                    renderCartView();
-                    break;
-            }
-        }
+    // --- Initial Load Logic ---
+    window.onload = function () {
+      const storedUser = sessionStorage.getItem("user");
+      if (storedUser) {
+        user = JSON.parse(storedUser);
+        checkPunchStatus(user.code);
+      }
+      updateUI(); // Initial UI render
+    };
 
-        // Initial render on page load
-        window.onload = () => {
-            renderApp();
-        };
+    // Event Listeners
+    imagesInput.addEventListener("change", function () {
+      processImages(this.files);
+    });
 
-    </script>
+    // Initial call to set correct visibility based on default/saved activity type
+    document.addEventListener("DOMContentLoaded", () => {
+      toggleFieldSections();
+    });
+
+  </script>
 </body>
 </html>
-
